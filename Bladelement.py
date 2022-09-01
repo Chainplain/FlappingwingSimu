@@ -19,21 +19,21 @@ class BladeAeroCalculator():
         self.x_data  = np.load(self.x_file_name)
         self.y_data  = np.load(self.y_file_name)
         print('@STATE:Blade Element Calculator Activated!!! File loaded.')
-        print('x_data:', self.x_data)
-        print('y_data:', self.y_data)
+        print('x_data:', self. x_data)
+        print('y_data:', self. y_data)
         # Both x_data and y_data are
 
         # self.body_rotation_in_inertia = np.matrix([[1, 0, 0],\
         #                                            [0, 1, 0],\
         #                                            [0, 0, 1]])  It seems unnecessary.
 
-        self.wing_rotation_relative_to_inertia  =  np.matrix([[1, 0, 0],\
-                                                              [0, 1, 0],\
-                                                              [0, 0, 1]])
+        self.wing_rotation_relative_to_inertia  =  np.matrix([[1.0, 0, 0],\
+                                                              [0, 1.0, 0],\
+                                                              [0, 0, 1.0]])
 
-        self.virturalWingPlaneRelative2Wing   =  np.matrix([[1, 0, 0],\
-                                                            [0, 1, 0],\
-                                                            [0, 0, 1]])
+        self.virturalWingPlaneRelative2Wing   =  np.matrix([[1.0, 0, 0],\
+                                                            [0, 1.0, 0],\
+                                                            [0, 0, 1.0]])
         # Please note that virtural wing plane frame x-axis along the wing leading edge form root to tip.
         #                                        and y-axis along chordwise direction
         #                                        and the frame is right-handed
@@ -41,11 +41,17 @@ class BladeAeroCalculator():
         #          We simply need this method to rotate the virtural wing plane frame to the current wing frame.
 
         self.Number_of_BladeElements = bladeElementNo
+
+        # self. v_AoA = 0
+        self. d_eFV = np.zeros([self.Number_of_BladeElements, 3])
+        self. Filter_Constant = 0.15
+        self. v_AoA = 0.0
+        print('self. v_AoA LOADed')
         self.BladeElementswidth      = max( self.x_data ) / (self.Number_of_BladeElements -  1)
         ###  which is considered as Δr in the paper, and is 1 X self.Number_of_BladeElements -dim
 
-        self.v_infi = 0
-        self.v_t    = 0
+        self.v_infi =  0.0
+        self.v_t    =  0.0
         self.v_r    = np.zeros([self.Number_of_BladeElements, 3])
         # Please note that different form v_infi and v_t, v_r is a 3 x bladeElementNo-dim numpy array.
         self.eFV   =  np.zeros([self.Number_of_BladeElements, 3])
@@ -178,7 +184,13 @@ class BladeAeroCalculator():
     # Please note that posLeadingEdgeVec_in_Inertia_frame is (3 x self.Number_of_BladeElements)-dim
     # That is to say np.transpose(posLeadingEdgeVec_in_Inertia_frame) is (self.Number_of_BladeElements x 3)-dim
         self.v_r    = np.cross(vel_wing_rotation, np.transpose(posLeadingEdgeVec_in_Inertia_frame)) #( self.Number_of_BladeElements x 3)-dim
-        self.v_AoA  = vel_AoA
+        if not np.isnan(vel_AoA):
+           self.v_AoA  = (self. Filter_Constant) * vel_AoA + (1.0 - self. Filter_Constant) * self.v_AoA
+        else:
+           self.v_AoA  = self.v_AoA
+
+        # print(' self.v_AoA type ',  type(self.v_AoA) )
+        # print(' vel_AoA type ',  type(vel_AoA) )
     # All these velocities are resolved in the inertia frame.
     # The body motion induced velocity is then also considered here, however implicitly in v_t and v_r
     # v_r is numpy matrix indeed
@@ -235,7 +247,8 @@ class BladeAeroCalculator():
         # print('F_t_drag_amp shape:', F_t_drag_amp.shape)
         # print('F_t_drag_amp Total:', sum(F_t_drag_amp))
 
-        d_eFV = (self.added_mass_FV - self.last_added_mass_FV) / self.length_period
+        self. d_eFV = (1 - self. Filter_Constant) * self. d_eFV + \
+                      self.Filter_Constant * (self.added_mass_FV - self.last_added_mass_FV) / self.length_period
         # d_AoA = (self.AoA - self.lastAoA) / self.length_period
         # print('d_eFV:',d_eFV)
         # print('d_AoA',d_AoA)
@@ -268,8 +281,8 @@ class BladeAeroCalculator():
         # print('np.multiply(self.eFV, d_eFV) / (self.SecNorm(self.eFV) + self.SMALL_CONSTANT_4_NOMALIZATION) shape:', \
         #       (np.sum(np.multiply(self.eFV, d_eFV) / (self.SecNorm(self.eFV) + self.SMALL_CONSTANT_4_NOMALIZATION),axis=1)).shape)
 
-        EF_tokken     = np.multiply(np.sum(np.multiply(self.eFV, d_eFV) / (self.SecNorm(self.eFV) + self.SMALL_CONSTANT_4_NOMALIZATION),axis=1), np.sin(self.AoA)) \
-                        + np.multiply(np.multiply(self.SecNorm(d_eFV), -self.AoA + np.pi), np.cos(self.AoA ))
+        EF_tokken     = np.multiply(np.sum(np.multiply(self.eFV, self. d_eFV ) / (self.SecNorm(self.eFV) + self.SMALL_CONSTANT_4_NOMALIZATION),axis=1), np.sin(self.AoA)) \
+                        + np.multiply(np.multiply(self.SecNorm(self. d_eFV ), -self.AoA + np.pi), np.cos(self.AoA ))
         ## eFV is self.Number_of_BladeElements x 3-dim
         # print('EF_tokken:',EF_tokken)
 
@@ -288,7 +301,7 @@ class BladeAeroCalculator():
         _1st_comp_direc = self.Normalize( np.matrix(np.cross(np.array(self.LERT.transpose())[0,:], self.eFV)))
         # self.Number_of_BladeElements x 3-dim
         mend_1st_direc_index = np.dot(_1st_comp_direc, self.chordD) > 0
-        array_mend_1st_direc_index = np.array(mend_1st_direc_index).squeeze()        
+        array_mend_1st_direc_index = np.array(mend_1st_direc_index).squeeze()
         _1st_comp_direc[array_mend_1st_direc_index] = - _1st_comp_direc[array_mend_1st_direc_index]
         # print('_1st_comp_direc:',_1st_comp_direc)
         # self.out1st = _1st_comp_direc
@@ -300,9 +313,9 @@ class BladeAeroCalculator():
         _3rd_and_4th_comp_direc        \
             = np.matrix(np.tile(_3rd_and_4th_comp_direc_single, (self.Number_of_BladeElements,1)))
         mend_3rd_and_4th_comp_direc_index = np.dot(self.eFV, _3rd_and_4th_comp_direc_single) < 0
-        array_mend_3rd_and_4th_comp_direc_index = np.array(mend_3rd_and_4th_comp_direc_index).squeeze() 
+        array_mend_3rd_and_4th_comp_direc_index = np.array(mend_3rd_and_4th_comp_direc_index).squeeze()
         _3rd_and_4th_comp_direc[array_mend_3rd_and_4th_comp_direc_index] =\
-            - _3rd_and_4th_comp_direc[array_mend_3rd_and_4th_comp_direc_index] 
+            - _3rd_and_4th_comp_direc[array_mend_3rd_and_4th_comp_direc_index]
         # print('_3rd_and_4th_comp_direc:',_3rd_and_4th_comp_direc)
         # _3rd_and_4th_comp_direc[array_mend_3rd_and_4th_comp_direc_index] = - _3rd_and_4th_comp_direc[array_mend_3rd_and_4th_comp_direc_index]
         ## 1 x 3-dim F_r and F_a share the same direction
@@ -321,17 +334,17 @@ class BladeAeroCalculator():
         Sum_of_F_a_amp = np.sum(F_a_amp)
 
         if np.abs(Sum_of_F_t_lift_amp) > self.SMALL_CONSTANT_4_NOMALIZATION:
-            Weighted_F_t_lift_amp  = F_t_lift_amp / Sum_of_F_t_lift_amp
+            Weighted_F_t_lift_amp  = F_t_lift_amp / (Sum_of_F_t_lift_amp + self.SMALL_CONSTANT_4_NOMALIZATION)
         else:
             Weighted_F_t_lift_amp  = 1 / self.Number_of_BladeElements
 
         if np.abs(Sum_of_F_r_amp) > self.SMALL_CONSTANT_4_NOMALIZATION:
-            Weighted_F_r_amp  = F_r_amp / Sum_of_F_r_amp
+            Weighted_F_r_amp  = F_r_amp / (Sum_of_F_r_amp + self.SMALL_CONSTANT_4_NOMALIZATION)
         else:
             Weighted_F_r_amp  = 1 / self.Number_of_BladeElements
 
         if np.abs(Sum_of_F_a_amp) > self.SMALL_CONSTANT_4_NOMALIZATION:
-            Weighted_F_a_amp = F_r_amp / np.sum(F_r_amp)
+            Weighted_F_a_amp = F_r_amp / (np.sum(F_r_amp) + self.SMALL_CONSTANT_4_NOMALIZATION)
         else:
             Weighted_F_a_amp = 1 / self.Number_of_BladeElements
 

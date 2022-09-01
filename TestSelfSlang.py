@@ -13,9 +13,17 @@ from controller import Display
 import numpy as np
 from   Bladelement import BladeAeroCalculator as BAC
 from   RotationComputation import FromPointer2Axis_Angle as P2AA
+from   RotationComputation import FromRotation2Euler_Angle_in_Rad as R2EAR
 from   ArrowManager import ForceArrowManager as FAM
+
 # from controller import Node
 # create the Robot instance.
+############### OVerall Test Region ############
+
+
+
+
+############### OVerall Test Region ############
 flapper = Supervisor()
 
 FORCE_RELATIVECONSTANT = 0.0005
@@ -23,15 +31,23 @@ FORCE_RELATIVECONSTANT = 0.0005
 # dAOAfile.truncate(0)
 # drawer  = Display('mirror')
 
-LU_bac = BAC('FlapallnewDownBLE_X_pos.npy','FlapallnewDownBLE_Y_pos.npy')
-LD_bac = BAC('FlapallnewDownBLE_X_pos.npy','FlapallnewDownBLE_Y_pos.npy')
-RU_bac = BAC('FlapallnewDownBLE_X_pos.npy','FlapallnewDownBLE_Y_pos.npy')
-RD_bac = BAC('FlapallnewDownBLE_X_pos.npy','FlapallnewDownBLE_Y_pos.npy')
+LU_bac = BAC('FlapallnewDownWing20BLE_X_pos.npy',\
+                'FlapallnewDownWing20BLE_Y_pos.npy',bladeElementNo=20)
+LD_bac = BAC('FlapallnewDownWing20BLE_X_pos.npy',\
+                'FlapallnewDownWing20BLE_Y_pos.npy',bladeElementNo=20)
+RU_bac = BAC('FlapallnewDownWing20BLE_X_pos.npy',\
+                'FlapallnewDownWing20BLE_Y_pos.npy',bladeElementNo=20)
+RD_bac = BAC('FlapallnewDownWing20BLE_X_pos.npy',\
+                'FlapallnewDownWing20BLE_Y_pos.npy',bladeElementNo=20)
+
+rudder_bac = BAC('FlapallnewDownTail_V20BLE_X_pos.npy',\
+                'FlapallnewDownTail_V20BLE_Y_pos.npy',bladeElementNo=20)
 
 LU_bac.SetVirturalWingPlaneRelative2Wing([1,0,0,0,1,0,0,0,1])
 LD_bac.SetVirturalWingPlaneRelative2Wing([1,0,0,0,1,0,0,0,1])
 RU_bac.SetVirturalWingPlaneRelative2Wing([1,0,0,0,1,0,0,0,1])
 RD_bac.SetVirturalWingPlaneRelative2Wing([1,0,0,0,1,0,0,0,1])
+rudder_bac.SetVirturalWingPlaneRelative2Wing([0,1,0,-1,0,0,0,0,1])
 
 # drawer.drawRectangle(0, 0, 1, 1)
 # flapper = robot.getFromDef('mybot')
@@ -67,17 +83,21 @@ Real_motor_LU_wing_joint = flapper.getDevice('LU_wing_joint')
 Real_motor_LD_wing_joint = flapper.getDevice('LD_wing_joint')
 Real_motor_RU_wing_joint = flapper.getDevice('RU_wing_joint')
 Real_motor_RD_wing_joint = flapper.getDevice('RD_wing_joint')
+Real_motor_rudder_joint = flapper.getDevice('rudder_joint')
+
 
 Real_motor_LU_wing_joint_sensor = flapper.getDevice('LU_wing_joint_sensor')
 Real_motor_LD_wing_joint_sensor = flapper.getDevice('LD_wing_joint_sensor')
 Real_motor_RU_wing_joint_sensor = flapper.getDevice('RU_wing_joint_sensor')
 Real_motor_RD_wing_joint_sensor = flapper.getDevice('RD_wing_joint_sensor')
+Real_motor_rudder_joint_sensor  = flapper.getDevice('rudder_joint_sensor')
+
 
 Real_motor_LU_wing_joint_sensor.enable(1)
 Real_motor_LD_wing_joint_sensor.enable(1)
 Real_motor_RU_wing_joint_sensor.enable(1)
 Real_motor_RD_wing_joint_sensor.enable(1)
-
+Real_motor_rudder_joint_sensor. enable(1)
 
 
 # print('Get Real_motor_LU_RD_joint position:',\
@@ -89,6 +109,9 @@ LU_wing                 = flapper.getFromDef('LU')
 LD_wing                 = flapper.getFromDef('LD')
 RU_wing                 = flapper.getFromDef('RU')
 RD_wing                 = flapper.getFromDef('RD')
+rudder                  = flapper.getFromDef('rudder')
+
+
 TheFlapper                 = flapper.getFromDef('TheFlapper')
 # LU_RD_joint             = flapper.getFromDef('LU_RD')
 
@@ -99,8 +122,8 @@ LU_drag_FAM                     = FAM(LU_drag_arrow)
 # LU_lift_arrowN             = flapper.getFromDef('LU_lift_arrowN')
 # LU_liftN_FAM                     = FAM(LU_lift_arrowN)
 
-LD_drag_arrow             = flapper.getFromDef('LD_drag_arrow')
-LD_drag_FAM                     = FAM(LD_drag_arrow)
+# LD_drag_arrow             = flapper.getFromDef('LD_drag_arrow')
+# LD_drag_FAM                     = FAM(LD_drag_arrow)
 
 LU_lift_arrow             = flapper.getFromDef('LU_lift_arrow')
 LU_lift_FAM                     = FAM(LU_lift_arrow)
@@ -111,8 +134,10 @@ LU_r_FAM                     = FAM(LU_r_arrow)
 LU_a_arrow             = flapper.getFromDef('LU_a_arrow')
 LU_a_FAM                     = FAM(LU_a_arrow)
 
-LD_lift_arrow             = flapper.getFromDef('LD_lift_arrow')
-LD_lift_FAM                     = FAM(LD_lift_arrow)
+rudder_drag_arrow             = flapper.getFromDef('rudder_drag_arrow')
+rudder_drag_FAM                     = FAM(rudder_drag_arrow)
+# LD_lift_arrow             = flapper.getFromDef('LD_lift_arrow')
+# LD_lift_FAM                     = FAM(LD_lift_arrow)
 
 #'MY_ROBOT'
 
@@ -124,6 +149,7 @@ LU_OrVec = LU_wing.getOrientation()
 LD_OrVec = LD_wing.getOrientation()
 RU_OrVec = RU_wing.getOrientation()
 RD_OrVec = RD_wing.getOrientation()
+
 
 LU_wing_Rotation_matrix = \
 np.matrix([[LU_OrVec[0], LU_OrVec[1], LU_OrVec[2]],\
@@ -175,7 +201,7 @@ vel_FreeFlow         = np.array([0,0,0])
 # TranslationBack2o = list(Rudder_Comparing_np + [0,0,0])
 # print('TranslationBack2o:',TranslationBack2o
 StrokeAmp    = np.pi / 8
-StrokeFreq   = 8
+StrokeFreq   = 17
 StrokeAmpOffSet = StrokeAmp
 
 # Real_motor_LU_RD_joint.maxVelocity = 100
@@ -186,6 +212,7 @@ Real_motor_LU_wing_joint_sensor_value = Real_motor_LU_wing_joint_sensor.getValue
 Real_motor_LD_wing_joint_sensor_value = Real_motor_LD_wing_joint_sensor.getValue()
 Real_motor_RU_wing_joint_sensor_value = Real_motor_RU_wing_joint_sensor.getValue()
 Real_motor_RD_wing_joint_sensor_value = Real_motor_RD_wing_joint_sensor.getValue()
+Real_motor_rudder_joint_sensor_value  = Real_motor_rudder_joint_sensor.getValue()
 
 while flapper.step(timestep) != -1:
     # print('timestep',timestep)
@@ -203,6 +230,9 @@ while flapper.step(timestep) != -1:
     LD_OrVec = LD_wing.getOrientation()
     RU_OrVec = RU_wing.getOrientation()
     RD_OrVec = RD_wing.getOrientation()
+    
+    rudder_OrVec = rudder.getOrientation()
+    
     
     LU_wing_Rotation_matrix = \
     np.matrix([[LU_OrVec[0], LU_OrVec[1], LU_OrVec[2]],\
@@ -223,27 +253,41 @@ while flapper.step(timestep) != -1:
     np.matrix([[RD_OrVec[0], RD_OrVec[1], RD_OrVec[2]],\
                [RD_OrVec[3], RD_OrVec[4], RD_OrVec[5]],\
                [RD_OrVec[6], RD_OrVec[7], RD_OrVec[8]]])
+               
+    rudder_Rotation_matrix = \
+    np.matrix([[rudder_OrVec[0], rudder_OrVec[1], rudder_OrVec[2]],\
+               [rudder_OrVec[3], rudder_OrVec[4], rudder_OrVec[5]],\
+               [rudder_OrVec[6], rudder_OrVec[7], rudder_OrVec[8]]])
 
     LU_OrVec    = LU_wing.getOrientation()
     LD_OrVec    = LD_wing.getOrientation()
     RU_OrVec    = RU_wing.getOrientation()
     RD_OrVec    = RD_wing.getOrientation()
+    rudder_OrVec = rudder.getOrientation()
+    
+    Flapper_OrVec = TheFlapper.getOrientation()
+    Flapper_OrVec_in_Euler =  R2EAR(Flapper_OrVec)
+    print('Flapper_OrVec:',Flapper_OrVec_in_Euler )
+    
     # LU_RD_OrVec = LU_RD_joint.getOrientation()
 
     LU_bac.RequestWingOrientation2InertiaFrame (LU_OrVec)
     LD_bac.RequestWingOrientation2InertiaFrame (LD_OrVec)
     RU_bac.RequestWingOrientation2InertiaFrame (RU_OrVec)
     RD_bac.RequestWingOrientation2InertiaFrame (RD_OrVec)
+    rudder_bac.RequestWingOrientation2InertiaFrame (rudder_OrVec)
     
     LU_bac.RequestWingPlaneDirection()
     LD_bac.RequestWingPlaneDirection()
     RU_bac.RequestWingPlaneDirection()
     RD_bac.RequestWingPlaneDirection()
+    rudder_bac.RequestWingPlaneDirection()
     
     LU_velVec = LU_wing.getVelocity()
     LD_velVec = LD_wing.getVelocity()
     RU_velVec = RU_wing.getVelocity()
     RD_velVec = RD_wing.getVelocity()
+    rudder_velVec = rudder.getVelocity()
     # LU_RD_velVec = LU_RD_joint.getVelocity()
     
     
@@ -251,17 +295,20 @@ while flapper.step(timestep) != -1:
     Last_Real_motor_LD_wing_joint_sensor_value = Real_motor_LD_wing_joint_sensor_value
     Last_Real_motor_RU_wing_joint_sensor_value = Real_motor_RU_wing_joint_sensor_value
     Last_Real_motor_RD_wing_joint_sensor_value = Real_motor_RD_wing_joint_sensor_value
+    Last_Real_motor_rudder_joint_sensor_value = Real_motor_rudder_joint_sensor_value
+    
     
     Real_motor_LU_wing_joint_sensor_value = Real_motor_LU_wing_joint_sensor.getValue()
     Real_motor_LD_wing_joint_sensor_value = Real_motor_LD_wing_joint_sensor.getValue()
     Real_motor_RU_wing_joint_sensor_value = Real_motor_RU_wing_joint_sensor.getValue()
     Real_motor_RD_wing_joint_sensor_value = Real_motor_RD_wing_joint_sensor.getValue()
+    Real_motor_rudder_joint_sensor_value  = Real_motor_rudder_joint_sensor.getValue()
     
     d_Real_motor_LU_wing_joint_sensor_value = (Real_motor_LU_wing_joint_sensor_value - Last_Real_motor_LU_wing_joint_sensor_value) /0.001
     d_Real_motor_LD_wing_joint_sensor_value = (Real_motor_LD_wing_joint_sensor_value - Last_Real_motor_LD_wing_joint_sensor_value) /0.001
     d_Real_motor_RU_wing_joint_sensor_value = (Real_motor_RU_wing_joint_sensor_value - Last_Real_motor_RU_wing_joint_sensor_value) /0.001
     d_Real_motor_RD_wing_joint_sensor_value = (Real_motor_RD_wing_joint_sensor_value - Last_Real_motor_RD_wing_joint_sensor_value) /0.001
-    
+    d_Real_motor_rudder_joint_sensor_value  = (Real_motor_rudder_joint_sensor_value - Last_Real_motor_rudder_joint_sensor_value) /0.001
     
     LU_bac.RequestVelocities(vel_FreeFlow,LU_velVec[0:3],\
                                           LU_velVec[3:6],d_Real_motor_LU_wing_joint_sensor_value)
@@ -271,7 +318,9 @@ while flapper.step(timestep) != -1:
                                           RU_velVec[3:6],d_Real_motor_RU_wing_joint_sensor_value)
     RD_bac.RequestVelocities(vel_FreeFlow,RD_velVec[0:3],\
                                           RD_velVec[3:6],d_Real_motor_RD_wing_joint_sensor_value)
-    
+    rudder_bac.RequestVelocities(vel_FreeFlow,rudder_velVec[0:3],\
+                                          rudder_velVec[3:6],d_Real_motor_rudder_joint_sensor_value)
+                                          
     TheFlapper_velVec = TheFlapper.getVelocity()
     
     
@@ -282,16 +331,19 @@ while flapper.step(timestep) != -1:
     LD_bac.CalcEffectiveVelocity()
     RU_bac.CalcEffectiveVelocity()
     RD_bac.CalcEffectiveVelocity()
+    rudder_bac.CalcEffectiveVelocity()
     
     LU_bac.CalcAoA()
     LD_bac.CalcAoA()
     RU_bac.CalcAoA()
     RD_bac.CalcAoA()
+    rudder_bac.CalcAoA()
     
     LU_bac.CopmputeAerodynamicForce()
     LD_bac.CopmputeAerodynamicForce()
     RU_bac.CopmputeAerodynamicForce()
     RD_bac.CopmputeAerodynamicForce()
+    rudder_bac.CopmputeAerodynamicForce()
     
 
     # print('LU_r_shift:',LU_r_shift)
@@ -319,6 +371,9 @@ while flapper.step(timestep) != -1:
     LU_drag_position = (np.array(LU_wing.getPosition()) + np.array(LU_t_shift)).tolist()
     LU_drag_norm     = np.linalg.norm(LU_drag)
     LU_drag_FAM.update_force_device(LU_drag_Axis,LU_drag_position,LU_drag_norm)
+    print('LU_t_shift_in_wing',LU_t_shift_in_wing)
+
+
 
     LU_lift = np.array(np.sum(LU_bac. F_t_lift, axis=0)).squeeze()
     LU_lift_Axis = P2AA(LU_lift).tolist()
@@ -327,22 +382,24 @@ while flapper.step(timestep) != -1:
     LU_lift_FAM.update_force_device(LU_lift_Axis,LU_lift_position,LU_lift_norm)
   
     LD_drag = np.array(np.sum(LD_bac. F_t_drag, axis=0)).squeeze()
-    LD_drag_Axis = P2AA(LD_drag).tolist()
-    LD_drag_position = LD_wing.getPosition()
-    LD_drag_norm     = np.linalg.norm(LD_drag)
-    LD_drag_FAM.update_force_device(LD_drag_Axis,LD_drag_position,LD_drag_norm)
+    # LD_drag_Axis = P2AA(LD_drag).tolist()
+    # LD_drag_position = LD_wing.getPosition()
+    # LD_drag_norm     = np.linalg.norm(LD_drag)
+    # LD_drag_FAM.update_force_device(LD_drag_Axis,LD_drag_position,LD_drag_norm)
     
     LD_lift = np.array(np.sum(LD_bac. F_t_lift, axis=0)).squeeze()
-    LD_lift_Axis = P2AA(LD_lift).tolist()
-    LD_lift_position = LD_drag_position
-    LD_lift_norm     = np.linalg.norm(LD_lift)
-    LD_lift_FAM.update_force_device(LD_lift_Axis,LD_lift_position,LD_lift_norm)
+    # LD_lift_Axis = P2AA(LD_lift).tolist()
+    # LD_lift_position = LD_drag_position
+    # LD_lift_norm     = np.linalg.norm(LD_lift)
+    # LD_lift_FAM.update_force_device(LD_lift_Axis,LD_lift_position,LD_lift_norm)
     
     RU_lift = np.array(np.sum(RU_bac. F_t_lift, axis=0)).squeeze()
     RD_lift = np.array(np.sum(RD_bac. F_t_lift, axis=0)).squeeze()
     
     RU_drag = np.array(np.sum(RU_bac. F_t_drag, axis=0)).squeeze()
     RD_drag = np.array(np.sum(RD_bac. F_t_drag, axis=0)).squeeze()
+    
+    
     
     LD_r = np.array(np.sum(LD_bac. F_r, axis=0)).squeeze()
     RU_r = np.array(np.sum(RU_bac. F_r, axis=0)).squeeze()
@@ -353,6 +410,23 @@ while flapper.step(timestep) != -1:
     LD_a = np.array(np.sum(LD_bac. F_a, axis=0)).squeeze()
     RU_a = np.array(np.sum(RU_bac. F_a, axis=0)).squeeze()
     RD_a = np.array(np.sum(RD_bac. F_a, axis=0)).squeeze()
+    
+    
+    rudder_lift = np.array(np.sum(rudder_bac. F_t_lift, axis=0)).squeeze()
+    rudder_drag = np.array(np.sum(rudder_bac. F_t_drag, axis=0)).squeeze()
+    rudder_r = np.array(np.sum(rudder_bac. F_r, axis=0)).squeeze()
+    rudder_a = np.array(np.sum(rudder_bac. F_a, axis=0)).squeeze()
+    
+    
+    rudder_t_shift_in_local = np.array([rudder_bac. X_pos_t, -rudder_bac. Y_pos_t, 0])
+    rudder_t_shift = np.array(np.matmul(rudder_Rotation_matrix, rudder_t_shift_in_local)).squeeze().tolist()
+    # LU_drag = np.array(np.sum(rudder_bac. F_t_drag, axis=0)).squeeze()
+    rudder_drag_Axis = P2AA(rudder_drag).tolist()
+    rudder_drag_position = (np.array(rudder.getPosition()) + np.array(rudder_t_shift)).tolist()
+    rudder_drag_norm     = np.linalg.norm(rudder_drag)
+    rudder_drag_FAM.update_force_device(rudder_drag_Axis,rudder_drag_position,rudder_drag_norm)
+    print('rudder_t_shift_in_local',rudder_t_shift_in_local)
+
     # LD_a_Axis = P2AA(LD_a).tolist()
     # print ('LD_drag:',LD_drag,'Axis:',LD_Axis)
     # LD_drag_arrow_rotation.setSFRotation(LD_Axis)
@@ -362,29 +436,36 @@ while flapper.step(timestep) != -1:
     LD_wing.addForceWithOffset([LD_drag[0],LD_drag[1],LD_drag[2]],[LD_bac.X_pos_t,-LD_bac.Y_pos_t,0],False)
     RU_wing.addForceWithOffset([RU_drag[0],RU_drag[1],RU_drag[2]],[RU_bac.X_pos_t,-RU_bac.Y_pos_t,0],False)
     RD_wing.addForceWithOffset([RD_drag[0],RD_drag[1],RD_drag[2]],[RD_bac.X_pos_t,-RD_bac.Y_pos_t,0],False)
-    
-    print('DRAG', [LU_drag[0],LU_drag[1],LU_drag[2]])
+    rudder.addForceWithOffset([rudder_drag[0],rudder_drag[1],rudder_drag[2]],rudder_t_shift_in_local.tolist(),False)
+    # print('DRAG', [LU_drag[0],LU_drag[1],LU_drag[2]])
     
     LU_wing.addForceWithOffset([LU_lift[0],LU_lift[1],LU_lift[2]],[LU_bac.X_pos_t,-LU_bac.Y_pos_t,0],False)
     LD_wing.addForceWithOffset([LD_lift[0],LD_lift[1],LD_lift[2]],[LD_bac.X_pos_t,-LD_bac.Y_pos_t,0],False)
     RU_wing.addForceWithOffset([RU_lift[0],RU_lift[1],RU_lift[2]],[RU_bac.X_pos_t,-RU_bac.Y_pos_t,0],False)
     RD_wing.addForceWithOffset([RD_lift[0],RD_lift[1],RD_lift[2]],[RD_bac.X_pos_t,-RD_bac.Y_pos_t,0],False)
+    rudder.addForceWithOffset([rudder_lift[0],rudder_lift[1],rudder_lift[2]],[rudder_bac.X_pos_t,-rudder_bac.Y_pos_t,0],False)
     
-    print('LIFT', [LU_lift[0],LU_lift[1],LU_lift[2]])
-    # LU_wing.addForceWithOffset([LU_r[0],LU_r[1],LU_r[2]],[LU_bac.X_pos_r,-LU_bac.Y_pos_r,0],False)
-    # LD_wing.addForceWithOffset([LD_r[0],LD_r[1],LD_r[2]],[LD_bac.X_pos_r,-LD_bac.Y_pos_r,0],False)
-    # RU_wing.addForceWithOffset([RU_r[0],RU_r[1],RU_r[2]],[RU_bac.X_pos_r,-RU_bac.Y_pos_r,0],False)
-    # RD_wing.addForceWithOffset([RD_r[0],RD_r[1],RD_r[2]],[RD_bac.X_pos_r,-RD_bac.Y_pos_r,0],False)
-    
-    # LU_wing.addForceWithOffset([LU_a[0],LU_a[1],LU_a[2]],[LU_bac.X_pos_a,-LU_bac.Y_pos_a,0],False)
-    # LD_wing.addForceWithOffset([LD_a[0],LD_a[1],LD_a[2]],[LD_bac.X_pos_a,-LD_bac.Y_pos_a,0],False)
-    # RU_wing.addForceWithOffset([RU_a[0],RU_a[1],RU_a[2]],[RU_bac.X_pos_a,-RU_bac.Y_pos_a,0],False)
-    # RD_wing.addForceWithOffset([RD_a[0],RD_a[1],RD_a[2]],[RD_bac.X_pos_a,-RD_bac.Y_pos_a,0],False)
+    # print('LIFT', [LU_lift[0],LU_lift[1],LU_lift[2]])
+    LU_wing.addForceWithOffset([LU_r[0],LU_r[1],LU_r[2]],[LU_bac.X_pos_r,-LU_bac.Y_pos_r,0],False)
+    LD_wing.addForceWithOffset([LD_r[0],LD_r[1],LD_r[2]],[LD_bac.X_pos_r,-LD_bac.Y_pos_r,0],False)
+    RU_wing.addForceWithOffset([RU_r[0],RU_r[1],RU_r[2]],[RU_bac.X_pos_r,-RU_bac.Y_pos_r,0],False)
+    RD_wing.addForceWithOffset([RD_r[0],RD_r[1],RD_r[2]],[RD_bac.X_pos_r,-RD_bac.Y_pos_r,0],False)
+    rudder.addForceWithOffset([rudder_r[0],rudder_r[1],rudder_r[2]],[rudder_bac.X_pos_r,-rudder_bac.Y_pos_r,0],False)
+
+
+    LU_wing.addForceWithOffset([LU_a[0],LU_a[1],LU_a[2]],[LU_bac.X_pos_a,-LU_bac.Y_pos_a,0],False)
+    LD_wing.addForceWithOffset([LD_a[0],LD_a[1],LD_a[2]],[LD_bac.X_pos_a,-LD_bac.Y_pos_a,0],False)
+    RU_wing.addForceWithOffset([RU_a[0],RU_a[1],RU_a[2]],[RU_bac.X_pos_a,-RU_bac.Y_pos_a,0],False)
+    RD_wing.addForceWithOffset([RD_a[0],RD_a[1],RD_a[2]],[RD_bac.X_pos_a,-RD_bac.Y_pos_a,0],False)
+    rudder.addForceWithOffset([rudder_a[0],rudder_a[1],rudder_a[2]],[rudder_bac.X_pos_a,-rudder_bac.Y_pos_a,0],False)
+
    
     # print('d_Real_motor_LU_wing_joint_sensor_value',d_Real_motor_LU_wing_joint_sensor_value)
-    torsion_spring_constant = 0.02
-    torsion_spring_yaw_offset = 0 ##0-0.3
-    torsion_spring_pitch_offset = 0###
+    torsion_spring_constant = 0.025
+    torsion_spring_yaw_offset = -0.1 ##0-0.3
+    K_pitch =0.8
+    torsion_spring_pitch_offset =  K_pitch * Flapper_OrVec_in_Euler[1]### 仔细调整
+    # print('TEST: torsion_spring_pitch_offset,', torsion_spring_pitch_offset)
     
     Real_motor_LU_wing_joint.setTorque(- torsion_spring_constant \
                                        * (Real_motor_LU_wing_joint_sensor_value + torsion_spring_yaw_offset + torsion_spring_pitch_offset))

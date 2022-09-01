@@ -7,7 +7,7 @@ from controller import Robot,Motor
 from controller import Supervisor
 
 class ForceArrowManager():
-    ARROWHEIGHT = 0.1
+    ARROWHEIGHT_RE = 0.2
     def __init__(self, force_device):
         self.force_arrow_translation = force_device.getField('translation')             ### Force translation!!
         self.force_arrow_rotation = force_device.getField('rotation')                   ### Force rotation!!
@@ -25,6 +25,6 @@ class ForceArrowManager():
     def update_force_device(self, axis, force_position, force_norm):
         self.force_arrow_rotation.setSFRotation(axis)
         self.force_arrow_translation.setSFVec3f(force_position)
-        self.force_arrow_children_cone_Transform_translation.setSFVec3f([0,force_norm/self.ARROWHEIGHT * 0.1,0])
-        self.force_arrow_children_cylinder_Transform_translation.setSFVec3f([0,force_norm/self.ARROWHEIGHT/2 * 0.1,0])
-        self.force_arrow_children_cylinder_Transform_scale.setSFVec3f([1,force_norm/self.ARROWHEIGHT,1])
+        self.force_arrow_children_cone_Transform_translation.setSFVec3f([0,force_norm/self.ARROWHEIGHT_RE * 0.1,0])
+        self.force_arrow_children_cylinder_Transform_translation.setSFVec3f([0,force_norm/self.ARROWHEIGHT_RE/2 * 0.1,0])
+        self.force_arrow_children_cylinder_Transform_scale.setSFVec3f([1,force_norm/self.ARROWHEIGHT_RE,1])

@@ -1,6 +1,7 @@
 """chainplan Rotation Computation,"""
 #2022-7-28 15:19:33
 import numpy as np
+from   scipy.spatial.transform import Rotation 
 
 EXTREME_SMALL_NUMBER_4_ROTATION_COMPUTATION = 0.000000001
 
@@ -35,4 +36,16 @@ def FromPointer2Axis_Angle(Pointer,origin_pointer = np.array([0,1,0])):
     rotation_value = np.arccos(cosine_value)
 
     return np.append(normailized_rotation_axis, rotation_value)
+    
+def FromRotation2Euler_Angle_in_Rad (Rot_Vec):
+    Rotation_for_Rot_Vec_But_not_just_rotation_matrix = Rotation.from_matrix(\
+               [[Rot_Vec[0], Rot_Vec[1], Rot_Vec[2]],\
+                [Rot_Vec[3], Rot_Vec[4], Rot_Vec[5]],\
+                [Rot_Vec[6], Rot_Vec[7], Rot_Vec[8]]])
+                
+    return Rotation_for_Rot_Vec_But_not_just_rotation_matrix.as_euler('zyx', degrees=False)
+    # Rot_Vec is the rotation matrix explained as a 1X9 Vec np.list, row by row
+    # Return the Euler Angle :
+    
+
 ###From a 3D pointer we calculate the axis-angle value
