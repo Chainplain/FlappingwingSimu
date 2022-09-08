@@ -6,6 +6,7 @@ import numpy as np
 
 
 #### Please note that, due to my laziness, the leading edge must coincides with the rotatioin axis,
+#####                  or at least the 
 #### and they should also coincide with the x axis of the wing
 #### All the n-dim vector inputs are set as 1 x n numpy array
 class BladeAeroCalculator():
@@ -46,8 +47,8 @@ class BladeAeroCalculator():
         self. d_eFV = np.zeros([self.Number_of_BladeElements, 3])
         self. Filter_Constant = 0.15
         self. v_AoA = 0.0
-        print('self. v_AoA LOADed')
-        self.BladeElementswidth      = max( self.x_data ) / (self.Number_of_BladeElements -  1)
+        print('self. v_AoA loaded')
+        self.BladeElementswidth      = (max( self.x_data ) - min( self.x_data )) / (self.Number_of_BladeElements -  1)
         ###  which is considered as Δr in the paper, and is 1 X self.Number_of_BladeElements -dim
 
         self.v_infi =  0.0
@@ -364,17 +365,29 @@ class BladeAeroCalculator():
         # print('F_r:', np.sum(self.F_r, axis = 0))
         # print('F_a:', np.sum(self.F_a, axis = 0))
 
-        self. X_pos_t  = np.sum(np.multiply(Weighted_F_t_lift_amp, np.mat(self.x_data).transpose()))
-        self. X_pos_r  = np.sum(np.multiply(Weighted_F_r_amp,      np.mat(self.x_data).transpose())) ##或许应该求算数平均数
-        self. X_pos_a  = np.sum(np.multiply(Weighted_F_a_amp,      np.mat(self.x_data).transpose()))
+        raw_X_pos_t  = np.sum(np.multiply(Weighted_F_t_lift_amp, np.mat(self.x_data).transpose()))
+        raw_X_pos_r  = np.sum(np.multiply(Weighted_F_r_amp,      np.mat(self.x_data).transpose())) ##或许应该求算数平均数
+        raw_X_pos_a  = np.sum(np.multiply(Weighted_F_a_amp,      np.mat(self.x_data).transpose()))
 
 
-        self. Y_pos_t  = np.sum(np.multiply(np.multiply(Weighted_F_t_lift_amp, np.mat(np.abs(self.y_data)).transpose()),\
+        raw_Y_pos_t  = - np.sum(np.multiply(np.multiply(Weighted_F_t_lift_amp, np.mat(np.abs(self.y_data)).transpose()),\
                                      (np.abs(-self.AoA.transpose()+np.pi)/np.pi).transpose()))
-        self. Y_pos_r  = 0.5    * np.sum(np.multiply(Weighted_F_r_amp, np.mat(np.abs(self.y_data)).transpose()))
-        self. Y_pos_a  = 0.5625 * np.sum(np.multiply(Weighted_F_a_amp, np.mat(np.abs(self.y_data)).transpose()))
+        raw_Y_pos_r  = - 0.5    * np.sum(np.multiply(Weighted_F_r_amp, np.mat(np.abs(self.y_data)).transpose()))
+        raw_Y_pos_a  = - 0.5625 * np.sum(np.multiply(Weighted_F_a_amp, np.mat(np.abs(self.y_data)).transpose()))
 
-
+        raw_pos_t    =   np.array(np.matmul(self.virturalWingPlaneRelative2Wing.transpose(), np.array([raw_X_pos_t, raw_Y_pos_t, 0]))).squeeze()
+        raw_pos_r    =   np.array(np.matmul(self.virturalWingPlaneRelative2Wing.transpose(), np.array([raw_X_pos_r, raw_Y_pos_r, 0]))).squeeze()
+        raw_pos_a    =   np.array(np.matmul(self.virturalWingPlaneRelative2Wing.transpose(), np.array([raw_X_pos_a, raw_Y_pos_a, 0]))).squeeze()
+        
+        # print(raw_pos_t)
+        self. X_pos_t = raw_pos_t[0]
+        self. Y_pos_t = raw_pos_t[1]
+        
+        self. X_pos_r = raw_pos_r[0]
+        self. Y_pos_r = raw_pos_r[1]
+        
+        self. X_pos_a = raw_pos_a[0]
+        self. Y_pos_a = raw_pos_a[1]
         ### We need the relationship graph
         ##  And we need initialize all the parameters in the _init_
 

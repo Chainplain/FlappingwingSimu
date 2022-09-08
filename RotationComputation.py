@@ -46,6 +46,8 @@ def FromRotation2Euler_Angle_in_Rad (Rot_Vec):
     return Rotation_for_Rot_Vec_But_not_just_rotation_matrix.as_euler('zyx', degrees=False)
     # Rot_Vec is the rotation matrix explained as a 1X9 Vec np.list, row by row
     # Return the Euler Angle :
-    
+
+def GetUnitDirection_Safe(Arrow):
+    return Arrow/ ( np.linalg.norm(Arrow) + EXTREME_SMALL_NUMBER_4_ROTATION_COMPUTATION)
 
 ###From a 3D pointer we calculate the axis-angle value
