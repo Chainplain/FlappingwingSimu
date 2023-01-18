@@ -18,7 +18,10 @@ And this branch is for trajectory tracking.
 https://github.com/cyberbotics/webots
 
 numpy
+
 scipy
+
 random
+
 linecache
 
