@@ -29,7 +29,7 @@ You can use following steps to test your own algorithm:
 
 - Choose the controller of the robot called the Flapper as SimpleFlapGamma_SensorFusion, which is also provided here. This is the controller file, you can rewrite the corresponding classes which are given in other files.
 
-- If everything is fine, using the following environments
+- If everything is fine, using the following world file:
 https://github.com/Chainplain/FlappingwingSimu/blob/version2.0/SimpleFlapFirstMaster_Test_Position_Trajecory_Tracking%20.wbt 
 it can be runned right away.
 
