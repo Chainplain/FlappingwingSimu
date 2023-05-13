@@ -44,7 +44,8 @@ it can be runned right away.
 - random
 - linecache
 
-## If you want to use
+## Citing Flapping_wing_Simu
+
 please cite as 
 
 ```
