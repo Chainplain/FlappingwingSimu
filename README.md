@@ -44,3 +44,16 @@ it can be runned right away.
 - random
 - linecache
 
+## If you want to use
+please cite as 
+
+```
+  @misc{qian2023practical,
+       title={Towards Practical Autonomous Flight Simulation for Flapping Wing Biomimetic Robots with Experimental Validation}, 
+       author={Chen Qian and Yongchun Fang and Fan jia and Jifu Yan and Yiming Liang and Tiefeng Li},
+       year={2023},
+       eprint={2303.04395},
+        archivePrefix={arXiv},
+        primaryClass={cs.RO}
+  }
+```
