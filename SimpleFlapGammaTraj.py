@@ -270,12 +270,12 @@ np.matrix([[RD_OrVec[0], RD_OrVec[1], RD_OrVec[2]],\
            [RD_OrVec[3], RD_OrVec[4], RD_OrVec[5]],\
            [RD_OrVec[6], RD_OrVec[7], RD_OrVec[8]]])
 
-print('LU_wing_Rotation_matrix:\n',LU_wing_Rotation_matrix)
-print('LD_wing_Rotation_matrix:\n',LD_wing_Rotation_matrix)
-print('LU_wing_Rotation_matrix:\n',RU_wing_Rotation_matrix)
-print('LD_wing_Rotation_matrix:\n',RD_wing_Rotation_matrix)
+# print('LU_wing_Rotation_matrix:\n',LU_wing_Rotation_matrix)
+# print('LD_wing_Rotation_matrix:\n',LD_wing_Rotation_matrix)
+# print('LU_wing_Rotation_matrix:\n',RU_wing_Rotation_matrix)
+# print('LD_wing_Rotation_matrix:\n',RD_wing_Rotation_matrix)
 
-print('Rotation matrix Test Complete!\n')
+# print('Rotation matrix Test Complete!\n')
 
 LU_velVec = LU_wing.getVelocity()
 LD_velVec = LD_wing.getVelocity()
@@ -283,12 +283,12 @@ RU_velVec = RU_wing.getVelocity()
 RD_velVec = RD_wing.getVelocity()
 
 
-print('LU_velVec:',LU_velVec[0:3],LU_velVec[3:6])
-print('LD_velVec:',LD_velVec[0:3],LD_velVec[3:6])
-print('RU_velVec:',RU_velVec[0:3],RU_velVec[3:6])
-print('RD_velVec:',RD_velVec[0:3],RD_velVec[3:6])
+# print('LU_velVec:',LU_velVec[0:3],LU_velVec[3:6])
+# print('LD_velVec:',LD_velVec[0:3],LD_velVec[3:6])
+# print('RU_velVec:',RU_velVec[0:3],RU_velVec[3:6])
+# print('RD_velVec:',RD_velVec[0:3],RD_velVec[3:6])
 Flapping_wing_induced_flow_Tail         = np.array([0, 0, 0])
-print('Velocity Vector Test Complete!\n')
+# print('Velocity Vector Test Complete!\n')
 
 vel_FreeFlow                       = np.array([0,0,0])
 Flapping_wing_induced_flow         = np.array([0,0,0])
@@ -350,7 +350,7 @@ Flapper_Rotation_matrix_initial = \
 
 Flapper_Rotation_desired = Flapper_Rotation_matrix_initial
 Flapper_Angular_velocity_desired = Given_av
-Angular_velocity_filter = LPSF(Zero_av, 9, 5, Simulation_Gap)
+Angular_velocity_filter = LPSF(Zero_av, 8, 0.8, Simulation_Gap)
 
 Here_ATG = ATG(Flapper_Rotation_desired, Flapper_Angular_velocity_desired, Simulation_Gap * Controller_Gap_vs_Simulation_Gap)
 
@@ -884,9 +884,9 @@ while flapper.step(timestep) != -1:
         # omega_2 = 0.5 * np.pi * np.cos(RecordCount * Simulation_Gap * np.pi )
         # omega_3 = 0.5 * np.pi * np.cos(RecordCount * Simulation_Gap * np.pi )
         # Here_ATG. omega = np. mat([[omega_1],[omega_2],[omega_3]])
-        print('Flapper_pos',Flapper_pos)
-        print('p_observer:',Here_pos_observer. p_observer)
-        print('p_d:',p_d) 
+        # print('Flapper_pos',Flapper_pos)
+        # print('p_observer:',Here_pos_observer. p_observer)
+        # print('p_d:',p_d) 
         # print('Here_ATG. orientation:',Here_ATG. orientation)
        
         # Here_ATG. march_forward(Here_ATG. orientation, Here_ATG. omega)
@@ -905,7 +905,7 @@ while flapper.step(timestep) != -1:
                                             d_v_d, Here_pos_observer. z_observer,\
                                             Flapper_Rotation_current)
         
-        print('u_t',u_t)
+        # print('u_t',u_t)
         StrokeFreq =  11 / 9.8* np.linalg.norm (u_t)
         
         # StrokeFreq = -K_height * (Flapper_translation_value[1]-1.2) + 10
@@ -914,12 +914,12 @@ while flapper.step(timestep) != -1:
         if (StrokeFreq > 15):
             StrokeFreq = 15
         
-        print('StrokeFreq',StrokeFreq)
+        # print('StrokeFreq',StrokeFreq)
         R_d = Computing_desired_rotation( u_t, Torward_direction, Flight_direction)
         Here_ARG. match_forward_angular_velcoity(R_d)
-        print('R_d', R_d)
-        print('Here_ARG.R_f', Here_ARG.R_f)
-        print('Here_ARG.Omega_f', Here_ARG.Omega_f)
+        # print('R_d', R_d)
+        # print('Here_ARG.R_f', Here_ARG.R_f)
+        # print('Here_ARG.Omega_f', Here_ARG.Omega_f)
         ##Omega_static
         SO3_Attitude_Controller. Generate_control_signal( Flapper_Rotation_current, Angle_vel,\
                                          R_d, Here_ARG.Omega_f)
@@ -953,7 +953,7 @@ while flapper.step(timestep) != -1:
             if (torsion_spring_yaw_offset < -0.3):
                 torsion_spring_yaw_offset = -0.3
                 
-        print('torsion_spring_yaw_offset',torsion_spring_yaw_offset)
+        # print('torsion_spring_yaw_offset',torsion_spring_yaw_offset)
     
     
     # print('Flapper position', Flapper_translation_value)

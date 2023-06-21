@@ -29,7 +29,7 @@ LighGray = [0.6,0.6,0.6];
 x_tick =0 + [0  4000 8000 12000 16000 20000];
 
 Experiment_name_list = {'5th_proposed'; '5th_UT2'; '5th_UT3'};
-Task = '_P_1_0_0';
+Task = '_C_1_0_0';
 Rear_name = '_Traj_Tracking_File.mat';
 
 LineWidth = 1.2;

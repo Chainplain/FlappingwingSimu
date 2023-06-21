@@ -20,8 +20,8 @@ class BladeAeroCalculator():
         self.x_data  = np.load(self.x_file_name)
         self.y_data  = np.load(self.y_file_name)
         print('@STATE:Blade Element Calculator Activated!!! File loaded.')
-        print('x_data:', self. x_data)
-        print('y_data:', self. y_data)
+        print('x_data:', self. x_data, type(self. x_data))
+        print('y_data:', self. y_data, type(self. y_data))
         # Both x_data and y_data are
 
         # self.body_rotation_in_inertia = np.matrix([[1, 0, 0],\
@@ -47,7 +47,7 @@ class BladeAeroCalculator():
         self. d_eFV = np.zeros([self.Number_of_BladeElements, 3])
         self. Filter_Constant = 0.2
         self. v_AoA = 0.0
-        print('self. v_AoA loaded')
+        # print('self. v_AoA loaded')
         self.BladeElementswidth      = (max( self.x_data ) - min( self.x_data )) / (self.Number_of_BladeElements -  1)
         ###  which is considered as Δr in the paper, and is 1 X self.Number_of_BladeElements -dim
 
@@ -194,8 +194,8 @@ class BladeAeroCalculator():
         else:
            self.v_AoA  = self.v_AoA
 
-    # print(' self.v_AoA type ',  type(self.v_AoA) )
-    # print(' vel_AoA type ',  type(vel_AoA) )
+        # print(' self.v_r shape ',  self.v_r.shape )
+        # print(' vel_AoA type ',  type(vel_AoA) )
     # All these velocities are resolved in the inertia frame.
     # The body motion induced velocity is then also considered here, however implicitly in v_t and v_r
     # v_r is numpy matrix indeed
@@ -312,7 +312,10 @@ class BladeAeroCalculator():
         # print('self.LERT array:',np.array(self.LERT.transpose())[0,:])
         # print('self.eFV shape:', self.eFV.shape)
         # np.cross(np.array(self.LERT.transpose())[0, :], self.eFV)
+        ## please note that [0, :], has no exact meaning, just for code purpose. 
         _1st_comp_direc = self.Normalize( np.matrix(np.cross(np.array(self.LERT.transpose())[0,:], self.eFV)))
+        # print('_1st_comp_direc:', _1st_comp_direc)
+        
         # self.Number_of_BladeElements x 3-dim
         mend_1st_direc_index = np.dot(_1st_comp_direc, self.chordD) > 0
         array_mend_1st_direc_index = np.array(mend_1st_direc_index).squeeze()

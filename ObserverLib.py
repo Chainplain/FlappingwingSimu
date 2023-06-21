@@ -6,7 +6,7 @@ from   scipy.spatial.transform import Rotation
 
 class Finite_time_slide_mode_observer_3dim():  
     def __init__(self, p_init, v_init, z_init, \
-                   rho_e_SET, G_p_SET,  G_v_SET, G_z_SET, time_gap, robot_mass, g = 9.8)
+                   rho_e_SET, G_p_SET,  G_v_SET, G_z_SET, time_gap, robot_mass, g = 9.8):
         self. p_observer = p_init
         self. v_observer = v_init
         self. z_observer = z_init
@@ -19,7 +19,7 @@ class Finite_time_slide_mode_observer_3dim():
         self. e_3 = np.mat([[0],[0],[1]])
         self. gravitional_accel = g
         
-    def sigma_map(self, super, vector)
+    def sigma_map(self, super, vector):
         signal = np.sign(vector)
         module = np.multiply( np.abs(vector), np. power(vector, super) )
         return np.multiply(signal, module)
@@ -28,7 +28,7 @@ class Finite_time_slide_mode_observer_3dim():
         p_observer_d = self. v_observer \
             - self. G_p * self.sigma_map((self. rho_e + 1)/2, self. p_observer - p_real) 
         v_observer_d = 1 / self. m * u_t - self. gravitional_accel * self. e_3 \
-            - 1 / self. m * self. G_v * self.sigma_map((self. rho_e + 1)/2, self. p_observer - p_real) 
+            - 1 / self. m * self. G_v * self.sigma_map((self. rho_e + 1)/2, self. p_observer - p_real) \
             + 1 / self. m * self. z_observer
         z_observer_d = - self. G_p * self.sigma_map(self. rho_e, self. p_observer - p_real)
         
