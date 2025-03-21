@@ -54,12 +54,11 @@ it can be runned right away.
 please cite as 
 
 ```
-  @misc{qian2023practical,
-       title={Towards Practical Autonomous Flight Simulation for Flapping Wing Biomimetic Robots with Experimental Validation}, 
-       author={Chen Qian and Yongchun Fang and Fan jia and Jifu Yan and Yiming Liang and Tiefeng Li},
-       year={2023},
-       eprint={2303.04395},
-        archivePrefix={arXiv},
-        primaryClass={cs.RO}
-  }
+@article{qian2024toward,
+  title={Toward Practical Autonomous Flight Simulation for Flapping Wing Biomimetic Robots With Experimental Validation},
+  author={Qian, Chen and Fang, Yongchun and Jia, Fan and Yan, Jifu and Liang, Yiming and Li, Tiefeng},
+  journal={IEEE Transactions on Automation Science and Engineering},
+  year={2024},
+  publisher={IEEE}
+}
 ```
